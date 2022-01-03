@@ -29,7 +29,7 @@ class SevenSeg(arcade.Sprite):
     E C
     #D# dot
     """
-    def __init__(self, width: int, on_color = arcade.color.RED, off_color = arcade.color.DARK_GRAY, *args, **kwargs):
+    def __init__(self, id: int, width: int, on_color = arcade.color.RED, off_color = arcade.color.DARK_GRAY, *args, **kwargs):
         self.width = width
         self.digit_width = int(self.width * (4 / 5))
         self.segment_thickness = self.digit_width // 4
@@ -41,8 +41,9 @@ class SevenSeg(arcade.Sprite):
         self.on_color = on_color
 
         self.segments = [False] * 8
+        self.texture = arcade.Texture.create_empty(f"segment-{id}", (self.width, self.height))
 
-        super().__init__(image_width = self.width, image_height = self.height, *args, **kwargs)
+        super().__init__(texture = self.texture, *args, **kwargs)
 
     @property
     def a(self) -> bool:
