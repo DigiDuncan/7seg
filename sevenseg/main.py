@@ -1,5 +1,3 @@
-from itertools import cycle
-
 import arcade
 
 from sevenseg.sevensegment import SevenSeg
@@ -23,9 +21,14 @@ class GameWindow(arcade.Window):
     def setup(self):
         """ Set up everything with the game """
         self.digits = "0123456789abcdef "
+        self.colors = [arcade.color.RED, arcade.color.GREEN, arcade.color.BLUE,
+                       arcade.color.CYAN, arcade.color.MAGENTA, arcade.color.YELLOW,
+                       arcade.color.WHITE]
         self.cursor = 0
+        self.color_cursor = 0
         self.dot = False
-        self.digit_0 = SevenSeg(200)
+        self.text = False
+        self.digit_0 = SevenSeg(300, thinness=6.5, on_color=arcade.color.BLUE)
         self.digit_0.center_x = self.get_size()[0] // 2
         self.digit_0.center_y = self.get_size()[1] // 2
 
@@ -35,12 +38,22 @@ class GameWindow(arcade.Window):
             case arcade.key.PERIOD:
                 self.dot = not self.dot
             case arcade.key.EQUAL:
-                self.cursor += 1
+                if modifiers & arcade.key.MOD_SHIFT:
+                    self.color_cursor += 1
+                else:
+                    self.cursor += 1
             case arcade.key.MINUS:
-                self.cursor -= 1
+                if modifiers & arcade.key.MOD_SHIFT:
+                    self.color_cursor -= 1
+                else:
+                    self.cursor -= 1
+            case arcade.key.T:
+                self.text = not self.text
         self.cursor %= len(self.digits)
+        self.color_cursor %= len(self.colors)
         self.digit_0.set_char(self.digits[self.cursor])
         self.digit_0.dot = self.dot
+        self.digit_0.on_color = self.colors[self.color_cursor]
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -48,12 +61,16 @@ class GameWindow(arcade.Window):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
-        pass
+        self.fps = round(1 / delta_time)
 
     def on_draw(self):
         """ Draw everything """
         arcade.start_render()
         self.digit_0.draw()
+        if self.text:
+            arcade.draw_text(f"Char: {self.digits[self.cursor]} | Color: {self.colors[self.color_cursor]}", 0, 0)
+            arcade.draw_text("+/- to inc/dec, SHIFT +/- to change color", 0, 20)
+            arcade.draw_text(f"{self.fps} FPS", 0, 50)
 
 
 def main():
