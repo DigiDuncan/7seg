@@ -29,21 +29,31 @@ class SevenSeg(arcade.Sprite):
     E C
     #D# dot
     """
-    def __init__(self, id: int, width: int, on_color = arcade.color.RED, off_color = arcade.color.DARK_GRAY, *args, **kwargs):
-        self.width = width
-        self.digit_width = int(self.width * (4 / 5))
-        self.segment_thickness = self.digit_width // 4
+
+    cid = 0
+
+    def __init__(self, width: int, thinness: float = 5, on_color = arcade.color.RED, off_color = arcade.color.CHARCOAL, *args, **kwargs):
+        self._w = width
+        self.digit_width = int(self._w * (4 / 5))
+        if thinness < 2.5:
+            raise ValueError("Thinness must be 2.5 or more.")
+        self.segment_thickness = self.digit_width // thinness
         self.segment_gap = self.segment_thickness // 4
         self.segment_length = self.digit_width - (self.segment_gap * 2) - self.segment_thickness
-        self.height = (self.segment_length * 2) + (self.segment_gap * 4) + self.segment_thickness
+        self.circle_size = (self._w - self.digit_width) // 2 + self.segment_gap
+        self._h = int((self.segment_length * 2) + (self.segment_gap * 4) + self.segment_thickness)
+        self._tex = arcade.Texture.create_empty(f"segment-{self.__class__.cid}", (self._w, self._h))
+        self.__class__.cid += 1
+
+        super().__init__(texture = self._tex, *args, **kwargs)
 
         self.off_color = off_color
         self.on_color = on_color
 
         self.segments = [False] * 8
-        self.texture = arcade.Texture.create_empty(f"segment-{id}", (self.width, self.height))
 
-        super().__init__(texture = self.texture, *args, **kwargs)
+        self._sprite_list = arcade.SpriteList()
+        self._sprite_list.append(self)
 
     @property
     def a(self) -> bool:
@@ -109,6 +119,11 @@ class SevenSeg(arcade.Sprite):
     def dot(self, on: bool):
         self.segments[7] = on
 
+    def segment_color(self, segment: int):
+        if segment > 7:
+            return ValueError("Segment must 0-7.")
+        return self.on_color if self.segments[segment] else self.off_color
+
     def set_bits(self, bits: int):
         """Set segment booleans in the pattern Dgfedcba."""
         for i in range(8):
@@ -153,7 +168,7 @@ class SevenSeg(arcade.Sprite):
             case "4":
                 self.set_bits(0b1100110)
             case "5":
-                self.set_bits(0b1101001)
+                self.set_bits(0b1101101)
             case "6":
                 self.set_bits(0b1111101)
             case "7":
@@ -161,7 +176,7 @@ class SevenSeg(arcade.Sprite):
             case "8":
                 self.set_bits(0b1111111)
             case "9":
-                self.set_bits(0b1001111)
+                self.set_bits(0b1101111)
             case "a":
                 self.set_bits(0b1110111)
             case "b":
@@ -184,5 +199,22 @@ class SevenSeg(arcade.Sprite):
         if set_dot:
             self.dot = True
 
-    def update(self):
-        return super().update()
+    def draw(self, *args, **kwargs):
+        with self._sprite_list.atlas.render_into(self._tex) as fbo:
+            fbo.clear()
+            points_a = get_segment_point_list(False, self.segment_length, self.segment_thickness, self.segment_thickness // 2 + self.segment_gap, self.height - self.segment_thickness)
+            arcade.draw_polygon_filled(points_a, self.segment_color(0))
+            points_b = get_segment_point_list(True, self.segment_length, self.segment_thickness, self.digit_width - self.segment_thickness, self.height - self.segment_length - self.segment_gap - (self.segment_thickness // 2))
+            arcade.draw_polygon_filled(points_b, self.segment_color(1))
+            points_c = get_segment_point_list(True, self.segment_length, self.segment_thickness, self.digit_width - self.segment_thickness, self.segment_gap + (self.segment_thickness // 2))
+            arcade.draw_polygon_filled(points_c, self.segment_color(2))
+            points_d = get_segment_point_list(False, self.segment_length, self.segment_thickness, self.segment_thickness // 2 + self.segment_gap, 0)
+            arcade.draw_polygon_filled(points_d, self.segment_color(3))
+            points_e = get_segment_point_list(True, self.segment_length, self.segment_thickness, 0, self.segment_gap + (self.segment_thickness // 2))
+            arcade.draw_polygon_filled(points_e, self.segment_color(4))
+            points_f = get_segment_point_list(True, self.segment_length, self.segment_thickness, 0, self.height - self.segment_length - self.segment_gap - (self.segment_thickness // 2))
+            arcade.draw_polygon_filled(points_f, self.segment_color(5))
+            points_g = get_segment_point_list(False, self.segment_length, self.segment_thickness, self.segment_thickness // 2 + self.segment_gap, self.segment_length + (self.segment_gap * 2))
+            arcade.draw_polygon_filled(points_g, self.segment_color(6))
+            arcade.draw_circle_filled(self._w - self.circle_size, self.circle_size // 2, self.circle_size // 2, self.segment_color(7))
+        super().draw(*args, **kwargs)

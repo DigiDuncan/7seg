@@ -1,6 +1,8 @@
+from itertools import cycle
+
 import arcade
 
-from sevenseg.sevensegment import get_segment_point_list
+from sevenseg.sevensegment import SevenSeg
 
 SCREEN_TITLE = "7Seg"
 
@@ -20,11 +22,25 @@ class GameWindow(arcade.Window):
 
     def setup(self):
         """ Set up everything with the game """
-        pass
+        self.digits = "0123456789abcdef "
+        self.cursor = 0
+        self.dot = False
+        self.digit_0 = SevenSeg(200)
+        self.digit_0.center_x = self.get_size()[0] // 2
+        self.digit_0.center_y = self.get_size()[1] // 2
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-        pass
+        match key:
+            case arcade.key.PERIOD:
+                self.dot = not self.dot
+            case arcade.key.EQUAL:
+                self.cursor += 1
+            case arcade.key.MINUS:
+                self.cursor -= 1
+        self.cursor %= len(self.digits)
+        self.digit_0.set_char(self.digits[self.cursor])
+        self.digit_0.dot = self.dot
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -37,11 +53,7 @@ class GameWindow(arcade.Window):
     def on_draw(self):
         """ Draw everything """
         arcade.start_render()
-        points = get_segment_point_list(True, 400, 90, 100, 100)
-        arcade.draw_points(points, arcade.color.RED, 5)
-        arcade.draw_polygon_filled(points, arcade.color.RED)
-        for i, point in enumerate(points):
-            arcade.draw_text(str(i), point[0], point[1], arcade.color.WHITE)
+        self.digit_0.draw()
 
 
 def main():
