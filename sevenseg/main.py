@@ -68,9 +68,9 @@ class GameWindow(arcade.Window):
         arcade.start_render()
         self.digit_0.draw()
         if self.text:
-            arcade.draw_text(f"Char: {self.digits[self.cursor]} | Color: {self.colors[self.color_cursor]}", 0, 0)
-            arcade.draw_text("+/- to inc/dec, SHIFT +/- to change color", 0, 20)
-            arcade.draw_text(f"{self.fps} FPS", 0, 50)
+            arcade.draw_text(f"Char: {self.digits[self.cursor]} | Color: {self.colors[self.color_cursor]}", 0, 5)
+            arcade.draw_text("+/- to inc/dec, SHIFT +/- to change color", 0, 25)
+            arcade.draw_text(f"{self.fps} FPS", 0, 45)
 
 
 def main():
