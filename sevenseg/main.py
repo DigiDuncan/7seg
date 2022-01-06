@@ -80,12 +80,12 @@ class GameWindow(arcade.Window):
         for n, c in enumerate(fulltime):
             self.digits[n].set_char(c)
 
+        self.sprite_list.update()
+
     def on_draw(self):
         """ Draw everything """
         arcade.start_render()
-        self.sprite_list.draw()  # Does nothing
-        for digit in self.digits:
-            digit.draw()  # works
+        self.sprite_list.draw()
         if self.text:
             hs = f"{self.hours:02}"
             ms = f"{self.minutes:02}"
