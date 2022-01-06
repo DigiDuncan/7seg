@@ -91,7 +91,7 @@ class GameWindow(arcade.Window):
             ms = f"{self.minutes:02}"
             ss = f"{self.seconds:02}"
             arcade.draw_text(f"Time: {hs}:{ms}:{ss} | Color: {self.colors[self.color_cursor]}", 0, 5)
-            arcade.draw_text("SHIFT +/- to change color", 0, 25)
+            arcade.draw_text("+/- to change color", 0, 25)
             arcade.draw_text(f"{self.fps} FPS", 0, 45)
 
 
