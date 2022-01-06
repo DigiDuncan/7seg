@@ -83,12 +83,15 @@ class GameWindow(arcade.Window):
     def on_draw(self):
         """ Draw everything """
         arcade.start_render()
-        self.sprite_list.draw()
+        self.sprite_list.draw()  # Does nothing
         for digit in self.digits:
-            digit.draw()
+            digit.draw()  # works
         if self.text:
-            arcade.draw_text(f"Color: {self.colors[self.color_cursor]}", 0, 5)
-            arcade.draw_text("+/- to inc/dec, SHIFT +/- to change color", 0, 25)
+            hs = f"{self.hours:02}"
+            ms = f"{self.minutes:02}"
+            ss = f"{self.seconds:02}"
+            arcade.draw_text(f"Time: {hs}:{ms}:{ss} | Color: {self.colors[self.color_cursor]}", 0, 5)
+            arcade.draw_text("SHIFT +/- to change color", 0, 25)
             arcade.draw_text(f"{self.fps} FPS", 0, 45)
 
 
