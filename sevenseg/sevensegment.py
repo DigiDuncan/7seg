@@ -52,7 +52,7 @@ class SevenSeg(arcade.Sprite):
         self.on_color = on_color
 
         self.segments = [False] * 8
-        self.last_state = tuple(self.segments) + (self.off_color, self.on_color)
+        self.last_state = None
 
         self._sprite_list = arcade.SpriteList()
         self._sprite_list.append(self)
