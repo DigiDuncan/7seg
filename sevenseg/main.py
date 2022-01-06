@@ -27,10 +27,8 @@ class GameWindow(arcade.Window):
         self.sprite_list = None
         self.ms_sprite_list = None
         self.digits = None
-        self.hours = 0
-        self.minutes = 0
-        self.seconds = 0
-        self.milliseconds = 0
+
+        self.now = arrow.now()
 
         # Init the parent class
         super().__init__(width, height, title, update_rate = 1 / 240)
@@ -96,17 +94,20 @@ class GameWindow(arcade.Window):
     def on_update(self, delta_time):
         """ Movement and game logic """
         self.fps = round(1 / delta_time)
-        now = arrow.now()
-        self.hours, self.minutes, self.seconds, self.milliseconds = now.hour, now.minute, now.second, now.microsecond // 1000
-        hs = f"{self.hours:>2}"
-        ms = f"{self.minutes:02}"
-        ss = f"{self.seconds:02}"
-        mss = f"{self.milliseconds:03}"
+        self.now = arrow.now()
+        hs = f"{self.now.format('h'):>2}"
+        ms = self.now.format('mm')
+        ss = self.now.format('ss')
+        mss = self.now.format('SSS')
         fulltime = hs + ms + ss
         for n, c in enumerate(fulltime):
             self.digits[n].set_char(c)
         for n, c in enumerate(mss):
             self.ms_digits[n].set_char(c)
+
+        # the worst pm check
+        if self.now.format('a')[0] == "p":
+            self.digit_H2.dot = True
 
         if self.ms:
             self.digit_S2.dot = True
@@ -127,7 +128,7 @@ class GameWindow(arcade.Window):
             colon_2_x = (self.digit_M2.center_x + self.digit_S1.center_x) // 2 - (self.digit_S1.width // 8)
             colon_a_y = self.digit_H1.center_y + (self.digit_H1.height // 5)
             colon_b_y = self.digit_H1.center_y - (self.digit_H1.height // 5)
-            circle_color = self.digit_H1.off_color if self.seconds % 2 and self.blink else self.digit_H1.on_color
+            circle_color = self.digit_H1.off_color if self.now.second % 2 and self.blink else self.digit_H1.on_color
 
             arcade.draw_circle_filled(colon_1_x, colon_a_y, circle_size, circle_color)
             arcade.draw_circle_filled(colon_1_x, colon_b_y, circle_size, circle_color)
@@ -136,10 +137,7 @@ class GameWindow(arcade.Window):
 
         # Debug
         if self.text:
-            hs = f"{self.hours:02}"
-            ms = f"{self.minutes:02}"
-            ss = f"{self.seconds:02}"
-            arcade.draw_text(f"Time: {hs}:{ms}:{ss} | Color: {self.colors[self.color_cursor]}", 0, 5)
+            arcade.draw_text(f"{self.now.format('HH:mm:ss')} | Color: {self.colors[self.color_cursor]}", 0, 5)
             arcade.draw_text("+/- to change color | [M] for ms | [C] for colons | [B] for blinking | [T] for debug info", 0, 25)
             arcade.draw_text(f"{self.fps} FPS", 0, 45)
 
