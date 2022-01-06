@@ -33,7 +33,7 @@ class GameWindow(arcade.Window):
         self.milliseconds = 0
 
         # Init the parent class
-        super().__init__(width, height, title)
+        super().__init__(width, height, title, update_rate = 1 / 240)
 
     def setup(self):
         """ Set up everything with the game """

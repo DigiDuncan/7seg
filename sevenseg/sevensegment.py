@@ -32,7 +32,8 @@ class SevenSeg(arcade.Sprite):
 
     cid = 0
 
-    def __init__(self, width: int, thinness: float = 6.5, on_color = arcade.color.RED, off_color = (32, 32, 32), *args, **kwargs):
+    def __init__(self, width: int, thinness: float = 6.5,
+                 on_color: tuple[int] = arcade.color.RED, off_color: tuple[int] = (32, 32, 32), *args, **kwargs):
         self._w = width
         self.digit_width = int(self._w * (4 / 5))
         if thinness < 2.5:
@@ -51,10 +52,14 @@ class SevenSeg(arcade.Sprite):
         self.on_color = on_color
 
         self.segments = [False] * 8
-        self.last_state = self.segments.copy()
+        self.last_state = tuple(self.segments) + (self.off_color, self.on_color)
 
         self._sprite_list = arcade.SpriteList()
         self._sprite_list.append(self)
+
+    @property
+    def current_state(self) -> tuple:
+        return tuple(self.segments) + (self.off_color, self.on_color)
 
     @property
     def a(self) -> bool:
@@ -201,7 +206,7 @@ class SevenSeg(arcade.Sprite):
             self.dot = True
 
     def update(self, *args, **kwargs):
-        if self.segments == self.last_state:
+        if self.current_state == self.last_state:
             return
         with self._sprite_list.atlas.render_into(self._tex) as fbo:
             fbo.clear()
@@ -220,5 +225,5 @@ class SevenSeg(arcade.Sprite):
             points_g = get_segment_point_list(False, self.segment_length, self.segment_thickness, self.segment_thickness // 2 + self.segment_gap, self.segment_length + (self.segment_gap * 2))
             arcade.draw_polygon_filled(points_g, self.segment_color(6))
             arcade.draw_circle_filled(self._w - self.circle_size, self.circle_size // 2, self.circle_size // 2, self.segment_color(7))
-        self.last_state = self.segments.copy()
+        self.last_state = self.current_state
         super().update(*args, **kwargs)
