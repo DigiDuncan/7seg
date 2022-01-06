@@ -51,6 +51,7 @@ class SevenSeg(arcade.Sprite):
         self.on_color = on_color
 
         self.segments = [False] * 8
+        self.last_state = self.segments.copy()
 
         self._sprite_list = arcade.SpriteList()
         self._sprite_list.append(self)
@@ -200,6 +201,8 @@ class SevenSeg(arcade.Sprite):
             self.dot = True
 
     def update(self, *args, **kwargs):
+        if self.segments == self.last_state:
+            return
         with self._sprite_list.atlas.render_into(self._tex) as fbo:
             fbo.clear()
             points_a = get_segment_point_list(False, self.segment_length, self.segment_thickness, self.segment_thickness // 2 + self.segment_gap, self.height - self.segment_thickness)
@@ -217,4 +220,5 @@ class SevenSeg(arcade.Sprite):
             points_g = get_segment_point_list(False, self.segment_length, self.segment_thickness, self.segment_thickness // 2 + self.segment_gap, self.segment_length + (self.segment_gap * 2))
             arcade.draw_polygon_filled(points_g, self.segment_color(6))
             arcade.draw_circle_filled(self._w - self.circle_size, self.circle_size // 2, self.circle_size // 2, self.segment_color(7))
+        self.last_state = self.segments.copy()
         super().update(*args, **kwargs)
